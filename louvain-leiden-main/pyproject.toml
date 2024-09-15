@@ -1,0 +1,71 @@
+[project]
+name = "community_detection"
+version = "20230823!0.1.0"
+description = "An implementation of the Louvain and Leiden community detection algorithms for NetworkX."
+
+license = {text = "European Union Public License 1.2"}
+requires-python = ">=3.9"
+authors = [ {name = "Daniel Albert", email = "git+community-detection+252b9@esclear.de"} ]
+
+
+[tool.black]
+line-length = 140
+target-version = ["py39", "py310"]
+skip-string-normalization = true
+
+
+[tool.coverage.run]
+branch = true
+omit = [
+    # Omit tests
+    "tests/*",
+    # Omit system-wide libraries
+    "/nix/*",
+    "/usr/*",
+    "/lib/*"
+]
+
+[tool.coverage.report]
+exclude_also = [
+    "@(abc\\.)?abstractmethod",
+]
+
+
+[tool.ruff]
+line-length = 140
+select = [ "E", "F", "D", "UP", "W", "N", "I", "ANN", "RUF", "PL" ]
+ignore = [
+    "RUF001", "RUF002", "RUF003",  # Ignore warnings about ambiguous unicode characters (𝓗, 𝓟, …)
+    "ANN101", "ANN102",  # Ignore missing type of `self` and `cls` args, which mypy infers (see docs for ANN101, ANN102)
+    "N803", "N806",  # Ignore warnings about uppercase, single-letter variable names (G, H, …)
+]
+
+[tool.ruff.per-file-ignores]
+# For the tests, allow longer lines, missing docstrings for modules and "magic values" in comparisons to keep tests simple
+"tests/*" = ["D100", "D103", "D104", "E501", "PLR2004"]
+
+[tool.ruff.pydocstyle]
+convention = "pep257"
+
+[tool.ruff.pylint]
+max-args = 6
+
+
+[tool.mypy]
+strict = true
+# exclude the folder 'local', which is not checked into the version management system
+exclude = [ "local" ]
+
+# There is no proper typing stub of the networkx library
+[[tool.mypy.overrides]]
+module = [ "networkx", "networkx.algorithms.community", "pandas" ]
+ignore_missing_imports = true
+
+
+[tool.isort]
+line_length = 140
+multi_line_output = 3
+include_trailing_comma = true
+force_grid_wrap = 0
+use_parentheses = true
+ensure_newline_before_comments = true
