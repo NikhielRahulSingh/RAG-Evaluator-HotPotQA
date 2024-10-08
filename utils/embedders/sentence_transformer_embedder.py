@@ -52,19 +52,9 @@ class SentenceTransformerEmbedder:
             print(f"similarity matrix saved to : {save_dir} as similarity_matrix.pkl")
 
     def get_embeddings(self, 
-                       model_name: str,
+                       model,
                        documents:List[Union[TextNode, QueryBundle]],
                        similarity_matrix:bool):
-        
-        model_location = f'{self.model_save_loc}/{model_name}'
-
-        if not os.path.isdir(model_location):
-            print(f'{model_name} not found in : {model_location}')
-            print(f'please download {model_name} using obj.download_embedding_model(model_name="{model_name}")')
-            print()
-            return
-            
-        model = SentenceTransformer(model_location, trust_remote_code=True)
     
         chunks = [(doc.text if isinstance(doc, TextNode) else doc.query_str) for doc in documents]
         embeddings = model.encode(chunks,show_progress_bar=True)
