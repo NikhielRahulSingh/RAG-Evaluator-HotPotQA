@@ -25,31 +25,46 @@ class ClusterVisualization:
                 config={'displayModeBar': True}  # Enable the mode bar
             ),
             dcc.Graph(
-                id='hovered-plot',  # This will display the plot corresponding to the hovered node
+                id='hovered-plot',  # This will display the plot corresponding to the hovered node or input
                 config={'displayModeBar': True}
             ),
-            html.Div(id='hover-output')
+            html.Div(id='hover-output'),
+            dcc.Input(id='cluster-id-input', type='number', placeholder='Enter cluster ID', debounce=True),
+            html.Button('Submit', id='submit-button', n_clicks=0),
+            html.Div(id='input-output')
         ])
     
     def setup_callbacks(self):
-        # Callback to handle hover events and update the hovered plot
+        # Callback to handle both hover and input events
         @self.app.callback(
             [dash.dependencies.Output('hovered-plot', 'figure'),
-             dash.dependencies.Output('hover-output', 'children')],
-            [dash.dependencies.Input('plot1', 'hoverData')]
+             dash.dependencies.Output('hover-output', 'children'),
+             dash.dependencies.Output('input-output', 'children')],
+            [dash.dependencies.Input('plot1', 'hoverData'),
+             dash.dependencies.Input('submit-button', 'n_clicks')],
+            [dash.dependencies.State('cluster-id-input', 'value')]
         )
-        def display_hover_data(hoverData):
-            if hoverData:
-                # Extract the hovered node name
-                node_name = int(hoverData['points'][0]['text'])
-                
-                # Get the corresponding plot from the dictionary
-                hovered_plot = self.plot2_dict.get(node_name, go.Figure())  # Default to empty plot if not found
-
-                return hovered_plot, f'Hovering over: {node_name}'
+        def display_hover_or_input(hoverData, n_clicks, cluster_id):
+            ctx = dash.callback_context
             
-            return go.Figure(), "Hover over a node!"
-    
+            # Check which input triggered the callback (hover or submit)
+            if not ctx.triggered:
+                return go.Figure(), "Hover over a node or enter a cluster ID!", ""
+
+            # Check if hover data triggered the callback
+            if 'plot1.hoverData' in ctx.triggered[0]['prop_id'] and hoverData:
+                node_name = int(hoverData['points'][0]['text'])
+                hovered_plot = self.plot2_dict.get(node_name, go.Figure())  # Get plot based on hovered node
+                return hovered_plot, f'Hovering over: {node_name}', ""
+
+            # Check if submit button triggered the callback and cluster_id is valid
+            if 'submit-button.n_clicks' in ctx.triggered[0]['prop_id'] and cluster_id is not None:
+                cluster_id = int(cluster_id)
+                input_plot = self.plot2_dict.get(cluster_id, go.Figure())  # Get plot based on input cluster ID
+                return input_plot, "", f'Selected cluster ID: {cluster_id}'
+            
+            return go.Figure(), "Hover over a node or enter a cluster ID!", ""
+
     def run(self):
         # Path to the Chrome executable
         chrome_path = '"C:/Program Files/Google/Chrome/Application/chrome.exe"'  # Update this path if necessary

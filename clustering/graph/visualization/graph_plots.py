@@ -1,8 +1,9 @@
 import networkx as nx
 import plotly.graph_objects as go
 from typing import Dict
+import textwrap
 
-def create_networkx_plot(G:nx.Graph, filename="network_graph.html"):
+def create_networkx_plot(G:nx.Graph, contexts):
     # Generate positions for nodes using the spring layout
     pos = nx.spring_layout(G,k=0.25)
 
@@ -52,7 +53,8 @@ def create_networkx_plot(G:nx.Graph, filename="network_graph.html"):
         # Number of connections (degree)
         node_adjacencies.append(len(G.adj[node]))
         adj_nodes = G.adj[node]
-        node_texts.append(f'{node}:# of connections: {len(adj_nodes)} \n{list(dict(adj_nodes).keys())}')  # Add to node_texts list
+        node_text = f"{node} : "+"<br>".join(textwrap.wrap(f'{contexts[str(node)].text}', width=100))
+        node_texts.append(node_text)  # Add to node_texts list
 
     node_trace.marker.color = node_adjacencies
     node_trace.text = node_texts  # Set the text attribute
@@ -78,10 +80,10 @@ def create_networkx_plot(G:nx.Graph, filename="network_graph.html"):
     # Save the figure as an HTML file
     #pio.write_html(fig, file=filename, auto_open=True)
 
-def get_individual_cluster_graph_plots(G:Dict[int, nx.Graph]):
+def get_individual_cluster_graph_plots(G:Dict[int, nx.Graph],contexts):
     plots = {}
     for key in G:
-        plots[key] = create_networkx_plot(G[key])
+        plots[key] = create_networkx_plot(G[key],contexts)
     
     return plots
 

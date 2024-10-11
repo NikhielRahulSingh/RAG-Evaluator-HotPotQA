@@ -8,9 +8,9 @@ def Agglomerative(similarity_matrix,contexts,threshold):
 
     dissimilarity_matrix = 1 - similarity_matrix
     clustering = AgglomerativeClustering(n_clusters=None, 
-                                     distance_threshold=threshold, 
-                                     metric='precomputed', 
-                                     linkage='complete')
+                                         distance_threshold=threshold, 
+                                         metric='precomputed', 
+                                         linkage='complete')
     clustering.fit(dissimilarity_matrix)
     clusters = {}
     for node, label in zip(contexts, clustering.labels_):
