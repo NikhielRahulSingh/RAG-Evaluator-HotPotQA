@@ -9,6 +9,7 @@ def retrieve_contexts(question):
     global V
     response = V.query(query_embeddings=[question.embedding],n_results=10)
     _ = response["ids"][0]
+    print(_)
     return _
 
 def perform_retrieval(hotpot_qa_df,vector_db):

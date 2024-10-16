@@ -13,20 +13,28 @@ class ClusterGraph:
         
         # Create a graph for each cluster and store it in the dictionary
         for cluster_id, cluster in self.clusters.items():
-            cluster_graph = nx.Graph()  # Create a new graph for each cluster
+
+            cluster_graph = nx.Graph()  
             cluster_graph.add_nodes_from(cluster)
-            
+
             for i in range(len(cluster)):
+                max_weight = -1
+                max_node = None
                 for j in range(i + 1, len(cluster)):
+
                     node_i = cluster[i]
                     node_j = cluster[j]
 
                     # Get the weight from the similarity matrix
                     weight = self.similarity_matrix[node_i, node_j]
+                    if weight > max_weight:
+                        max_weight = weight
+                        max_node = node_j
 
-                    # Add the edge with the corresponding weight
-                    cluster_graph.add_edge(node_i, node_j, weight=weight)
-            
+                # Add the edge with the corresponding weight
+                if max_node:
+                    cluster_graph.add_edge(node_i, max_node, weight=max_weight)
+        
             # Store the cluster graph in the dictionary
             cluster_graphs[cluster_id] = cluster_graph
 
@@ -41,13 +49,16 @@ class ClusterGraph:
 
         return composed_graph
     
-    def get_connected_graph(self):
+    def get_connected_graph(self,threshold):
 
         cluster_labels = list(self.clusters.keys())
         graph = self.get_combined_cluster_graphs()
         
         # Iterate through each pair of clusters and add an edge between one representative node
         for i in range(len(cluster_labels)):
+            edges = []
+            max_sim = -1.0
+            max_node = -float('inf')
             for j in range(i + 1, len(cluster_labels)):
                 # Get one representative node from each cluster
                 cluster_i = self.clusters[cluster_labels[i]]
@@ -58,9 +69,18 @@ class ClusterGraph:
                 
                 # Find the similarity between the representative nodes
                 similarity = self.similarity_matrix[node_i, node_j]
+                if similarity > max_sim:
+                    max_sim = similarity
+                    max_node = node_j
+                if similarity >= threshold:
+                    edges.append((node_j,similarity))
                 
-                # Add an edge between the two nodes based on the similarity
-                graph.add_edge(node_i, node_j, weight=similarity)
+            # Add an edge between the two nodes based on the similarity
+            if len(edges) == 0 :
+                graph.add_edge(node_i, max_node, weight=max_sim)
+            else:
+                for node_with_weight in edges:
+                    graph.add_edge(node_i, node_with_weight[0], weight=node_with_weight[1])
 
         return graph
     

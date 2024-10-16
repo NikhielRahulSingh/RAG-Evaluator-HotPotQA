@@ -2,6 +2,7 @@ import plotly.graph_objects as go
 from typing import Dict,List,Union
 from llama_index.core.schema import TextNode
 from plotly.subplots import make_subplots
+import plotly.io as pio
 
 def plot_cluster_counts(contexts:Dict[str,TextNode], 
                         graph_name:str, 
@@ -108,4 +109,5 @@ def plot_graphs(figures):
     fig.update_layout(height=300 * num_rows, showlegend=False)
 
     # Show the combined figure
+    pio.write_html(fig, file='hraph_plots.html', auto_open=True)
     fig.show()
