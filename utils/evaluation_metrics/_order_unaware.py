@@ -1,22 +1,22 @@
 
 from typing import List
 
-def precision_at_k(y, y_hat, k):
+def precision_at_k(actual, predicted, k):
+    act_set = set(actual)
+    pred_set = set(predicted[:k])
+    true_positives = act_set & pred_set
+    if len(pred_set) > 0:
+        return round(len(true_positives) / float(len(pred_set)), 2)
+    else:
+        return 0.0
 
-    boolean_list = [element in y for element in y_hat]
-    relevent_k = sum(boolean_list[:k]) # No. of matches at k
-    recall_k = relevent_k / k
-    
-    return recall_k
-
-def recall_at_k(y, y_hat, k):
-
-    boolean_list = [element in y for element in y_hat]
-    relevent_k = sum(boolean_list[:k]) # No. of matches at k
-    relevent_total = sum(boolean_list)
-    recall_k = relevent_k / relevent_total if relevent_total != 0 else 0
-    
-    return recall_k
+def recall_at_k(actual, predicted, k):
+    act_set = set(actual)
+    pred_set = set(predicted[:k])
+    if len(pred_set)>0:
+        return round(len(act_set & pred_set) / float(len(act_set)), 2)
+    else:
+        return 0.0
 
 def f1_at_k(y_true: List[int], y_pred: List[int], k: int) -> float:
     """
