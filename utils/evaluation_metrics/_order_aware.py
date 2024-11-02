@@ -1,5 +1,21 @@
 from llama_index.core.evaluation.retrieval import metrics
 
+def get_mrr(y,y_hat):
+    # number of queries
+    Q = len(y)
+
+    # calculate the reciprocal of the first actual relevant rank
+    cumulative_reciprocal = 0
+    for i in range(Q):
+        first_result = y[i][0]
+        reciprocal = 1 / first_result
+        cumulative_reciprocal += reciprocal
+
+    # calculate mrr
+    mrr = 1/Q * cumulative_reciprocal
+
+# generate results
+
 def order_aware_metrics(y,y_hat,):
 
     if len(y_hat) == 0:

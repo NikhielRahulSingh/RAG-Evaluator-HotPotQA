@@ -4,31 +4,26 @@ from utils.evaluation_metrics._order_aware import *
 
 class RetrieverEvaluator:
 
-    def __init__(self, df,col):
+    def __init__(self, y,y_pred):
 
-        self.df = df
-        self.y = df['actual_contexts'].tolist()
-        self.y_pred = df[col].tolist()
+        self.y = y
+        self.y_pred = y_pred
 
     def get_order_unaware_metrics(self,k):
         precision = []
         recall = []
-        f1 = []
 
         for y,y_pred in zip(self.y,self.y_pred):
 
             results = order_unaware_metrics(y,y_pred,k)
             precision.append(results[f'precision@{k}'])
             recall.append(results[f'recall@{k}'])
-            f1.append(results[f'F1@{k}'])
 
         avg_precision =  sum(precision) / len(precision) if len(precision) != 0 else 0
         avg_recall = sum(recall) / len(recall) if len(recall) != 0 else 0
-        avg_f1 = sum(f1) / len(f1) if len(f1) != 0 else 0
 
         return {f'avg precision@{k}':avg_precision,
-                f'avg recall@{k}':avg_recall,
-                f'avg F1@{k}':avg_f1}
+                f'avg recall@{k}':avg_recall,}
     
     def get_order_aware_metrics(self):
         mrr = []
